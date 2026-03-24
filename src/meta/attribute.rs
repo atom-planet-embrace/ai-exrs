@@ -2,7 +2,11 @@
 //! Each layer can have any number of [`Attribute`]s, including custom
 //! attributes.
 
-use alloc::{string::{String, ToString}, vec::Vec};
+use alloc::{
+    string::{String, ToString},
+    vec::Vec,
+};
+
 use smallvec::SmallVec;
 
 /// Contains one of all possible attributes.

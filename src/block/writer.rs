@@ -1,13 +1,13 @@
 //! Composable structures to handle writing an image.
 
-use crate::io::Seek;
 use core::{fmt::Debug, iter::Peekable, ops::Not};
+
 use smallvec::alloc::collections::BTreeMap;
 
 use crate::{
     block::{chunk::Chunk, UncompressedBlock},
     error::{usize_to_u64, Error, Result, UnitResult},
-    io::{Data, Tracking, Write},
+    io::{Data, Seek, Tracking, Write},
     meta::{attribute::LineOrder, Headers, MetaData, OffsetTables},
 };
 

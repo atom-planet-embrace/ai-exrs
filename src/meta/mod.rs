@@ -1,6 +1,7 @@
 //! Describes all meta data possible in an exr file.
 //! Contains functionality to read and write meta data from bytes.
-//! Browse the `ai_exr::image` module to get started with the high-level interface.
+//! Browse the `ai_exr::image` module to get started with the high-level
+//! interface.
 
 pub mod attribute;
 pub mod header;
@@ -381,7 +382,10 @@ impl MetaData {
     /// Use `read_from_file` if you have a file path.
     /// Does not validate the meta data.
     #[must_use]
-    pub fn read_from_unbuffered<const BUFFER_SIZE: usize>(unbuffered: impl Read, pedantic: bool) -> Result<Self> {
+    pub fn read_from_unbuffered<const BUFFER_SIZE: usize>(
+        unbuffered: impl Read,
+        pedantic: bool,
+    ) -> Result<Self> {
         Self::read_from_buffered(crate::io::BufReader::<_, BUFFER_SIZE>::new(unbuffered), pedantic)
     }
 

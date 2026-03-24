@@ -4,8 +4,8 @@ extern crate bencher;
 extern crate ai_exr;
 use std::{fs, io::Cursor};
 
-use bencher::Bencher;
 use ai_exr::{block::samples::FromNativeSample, image::pixel_vec::PixelVec, prelude::*};
+use bencher::Bencher;
 
 const F32_ZIPS_PATH: &str = "tests/images/valid/custom/crowskull/crow_zips.exr";
 const F32_UNCOMPRESSED_PATH: &str = "tests/images/valid/custom/crowskull/crow_uncompressed.exr";

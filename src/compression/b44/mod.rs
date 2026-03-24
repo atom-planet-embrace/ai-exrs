@@ -689,6 +689,7 @@ pub fn compress(
 #[cfg(all(test, feature = "std"))]
 mod test {
     use alloc::vec::Vec;
+
     use crate::{
         compression::{
             b44,

@@ -3,9 +3,8 @@
 use alloc::borrow::Cow;
 use core::{convert::TryFrom, fmt, num::TryFromIntError};
 
-pub use no_std_io::io::{Error as IoError, Result as IoResult};
-
 use no_std_io::io::ErrorKind;
+pub use no_std_io::io::{Error as IoError, Result as IoResult};
 
 // Export types
 

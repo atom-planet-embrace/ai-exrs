@@ -15,7 +15,6 @@ pub mod lines;
 pub mod samples;
 
 use alloc::vec::Vec;
-use crate::io::{Read, Seek, Write};
 
 use crate::{
     block::{
@@ -26,6 +25,7 @@ use crate::{
     },
     compression::ByteVec,
     error::{usize_to_i32, Error, Result, UnitResult},
+    io::{Read, Seek, Write},
     math::Vec2,
     meta::{attribute::ChannelList, header::Header, BlockDescription, Headers, MetaData},
 };

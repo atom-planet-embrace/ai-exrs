@@ -6,16 +6,13 @@ use alloc::vec::Vec;
 use core::convert::TryFrom;
 
 use ::half::f16;
-
-pub use no_std_io::io::{Read, Seek, SeekFrom, Write};
-
 use half::slice::HalfFloatSliceExt;
 use lebe::prelude::*;
+use no_std_io::io::{Cursor, ErrorKind as IoErrorKind};
+pub use no_std_io::io::{Read, Seek, SeekFrom, Write};
 use smallvec::{Array, SmallVec};
 
 use crate::error::{Error, IoError, IoResult, Result, UnitResult};
-
-use no_std_io::io::{Cursor, ErrorKind as IoErrorKind};
 
 /// A buffered reader with a compile-time buffer size.
 #[derive(Debug)]
@@ -71,7 +68,8 @@ impl<R: Read + Seek, const S: usize> Seek for BufReader<R, S> {
 }
 
 /// A cursor over a `Vec<u8>` that implements `Write`.
-/// Needed because `no_std_io` does not provide `impl Write for Cursor<Vec<u8>>`.
+/// Needed because `no_std_io` does not provide `impl Write for
+/// Cursor<Vec<u8>>`.
 #[derive(Debug)]
 pub struct WriteCursor(Cursor<Vec<u8>>);
 
@@ -117,7 +115,8 @@ impl Write for WriteCursor {
 
 /// A buffered writer with a compile-time buffer size.
 /// Flushes the internal buffer before any seek, ensuring correct behaviour
-/// when the underlying writer requires seeking (e.g. EXR chunk-offset patching).
+/// when the underlying writer requires seeking (e.g. EXR chunk-offset
+/// patching).
 #[derive(Debug)]
 pub struct BufWriter<W: Write + Seek, const S: usize = 8192> {
     inner: W,

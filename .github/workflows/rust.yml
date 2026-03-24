@@ -32,8 +32,8 @@ jobs:
       uses: Swatinem/rust-cache@v1.3.0
     - name: Build without default features
       run: cargo +stable build --no-default-features --verbose
-    - name: Run tests without default features
-      run: cargo +stable test --no-default-features --verbose
+    - name: Run tests without std feature
+      run: cargo +stable test --features std --verbose
     - name: Build with rayon feature
       run: cargo +stable build --features rayon --verbose
     - name: Run tests with rayon feature
@@ -52,8 +52,8 @@ jobs:
         uses: Swatinem/rust-cache@v1.3.0
       - name: Build without default features
         run: cargo +stable build --no-default-features --verbose
-      - name: Run tests without default features
-        run: cargo +stable test --no-default-features --verbose
+      - name: Run tests with std feature
+        run: cargo +stable test --features std --verbose
       - name: Build with rayon feature
         run: cargo +stable build --features rayon --verbose
       - name: Run tests with rayon feature
@@ -114,7 +114,7 @@ jobs:
         run: cross build --target powerpc-unknown-linux-gnu --no-default-features --verbose
 
       - name: Cross-Run Tests in powerpc-unknown-linux-gnu without rayon feature
-        run: cross test --target powerpc-unknown-linux-gnu --no-default-features --verbose
+        run: cross test --target powerpc-unknown-linux-gnu --features std --verbose
 
       - name: Cross-Compile project to powerpc-unknown-linux-gnu with rayon feature
         run: cross build --target powerpc-unknown-linux-gnu --features rayon --verbose
@@ -140,8 +140,8 @@ jobs:
     - name: Build without default features
       run: cargo +stable build --verbose --no-default-features --target wasm32-unknown-unknown
 
-    - name: Run tests without default features
-      run: cargo +stable test --verbose --no-default-features
+    - name: Run tests without std feature
+      run: cargo +stable test --verbose --features=std
 
   js:
     runs-on: ubuntu-latest

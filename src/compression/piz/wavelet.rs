@@ -291,6 +291,7 @@ fn decode_16bit(l: u16, h: u16) -> (u16, u16) {
 #[cfg(all(test, feature = "std"))]
 mod test {
     use alloc::vec::Vec;
+
     use crate::{compression::piz::wavelet::is_14_bit, math::Vec2};
 
     #[test]

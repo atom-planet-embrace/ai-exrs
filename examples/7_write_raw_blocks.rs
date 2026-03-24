@@ -15,8 +15,8 @@ extern crate ai_exr;
 /// produces a 3GB file while only ever allocating 4MB memory (takes a while
 /// though).
 fn main() {
-    use attribute::*;
     use ai_exr::{math::*, prelude::*};
+    use attribute::*;
 
     // pre-compute a list of random values
     let random_values: Vec<f32> = (0..64).map(|_| rand::random::<f32>()).collect();

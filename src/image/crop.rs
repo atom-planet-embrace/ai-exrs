@@ -2,6 +2,7 @@
 //! rectangle. Currently does not support deep data and resolution levels.
 
 use alloc::vec::Vec;
+
 use crate::{
     block::BlockIndex,
     image::{

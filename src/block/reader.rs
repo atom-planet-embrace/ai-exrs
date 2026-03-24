@@ -2,7 +2,6 @@
 
 use alloc::vec::Vec;
 use core::{convert::TryFrom, fmt::Debug};
-use crate::io::{Read, Seek};
 
 use crate::{
     block::{
@@ -10,7 +9,7 @@ use crate::{
         BlockIndex, UncompressedBlock,
     },
     error::{u64_to_usize, Error, Result, UnitResult},
-    io::{PeekRead, Tracking},
+    io::{PeekRead, Read, Seek, Tracking},
     meta::{header::Header, MetaData, OffsetTables},
 };
 

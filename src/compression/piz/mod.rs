@@ -313,6 +313,7 @@ fn apply_lookup_table(data: &mut [u16], table: &[u16]) {
 #[cfg(all(test, feature = "std"))]
 mod test {
     use alloc::vec::Vec;
+
     use crate::{
         compression::{piz, ByteVec},
         meta::attribute::*,

@@ -2,12 +2,11 @@
 //! [`from_file(path)`] method. This completes the builder and reads a complete
 //! image.
 
-use crate::io::{Read, Seek};
-
 use crate::{
     block::{chunk::TileCoordinates, reader::ChunksReader, BlockIndex, UncompressedBlock},
     error::{Result, UnitResult},
     image::*,
+    io::{Read, Seek},
     meta::{
         header::{Header, ImageAttributes},
         MetaData,
@@ -109,7 +108,10 @@ where
     /// have a file path.
     #[inline]
     #[must_use]
-    pub fn from_unbuffered<Layers, const BUFFER_SIZE: usize>(self, unbuffered: impl Read + Seek) -> Result<Image<Layers>>
+    pub fn from_unbuffered<Layers, const BUFFER_SIZE: usize>(
+        self,
+        unbuffered: impl Read + Seek,
+    ) -> Result<Image<Layers>>
     where
         for<'s> L: ReadLayers<'s, Layers = Layers>,
     {

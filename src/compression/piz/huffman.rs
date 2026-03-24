@@ -7,14 +7,11 @@ use alloc::{collections::BinaryHeap, vec::Vec};
 use core::{cmp::Ordering, convert::TryFrom};
 
 use no_std_io::io::{Read, Write};
-
-use crate::io::WriteCursor;
-
 use smallvec::SmallVec;
 
 use crate::{
     error::{u32_to_usize, u64_to_usize, Error, Result, UnitResult},
-    io::Data,
+    io::{Data, WriteCursor},
     math::RoundingMode,
 };
 

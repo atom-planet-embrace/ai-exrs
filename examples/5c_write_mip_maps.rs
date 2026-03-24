@@ -14,7 +14,8 @@ fn main() {
     let full_size = Vec2(512, 512);
     let size_rounding = RoundingMode::Up;
 
-    let mip_levels_sizes = ai_exr::meta::mip_map_levels(size_rounding, full_size).collect::<Vec<_>>();
+    let mip_levels_sizes =
+        ai_exr::meta::mip_map_levels(size_rounding, full_size).collect::<Vec<_>>();
 
     let red_mip_levels = mip_levels_sizes
         .iter()

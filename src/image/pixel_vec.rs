@@ -6,6 +6,7 @@
 //! written to a file.
 
 use alloc::vec::Vec;
+
 use super::*;
 
 /// Store all samples in a single array.

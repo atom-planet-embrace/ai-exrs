@@ -53,7 +53,6 @@ pub mod specific_channels;
 use ::std::path::Path;
 
 use crate::image::read::samples::ReadFlatSamples;
-
 #[cfg(feature = "std")]
 use crate::{
     block::samples::FromNativeSample,
@@ -201,6 +200,7 @@ pub struct ReadBuilder;
 /// Allows you to exactly specify how to load the image, for example:
 ///
 /// ```no_run
+/// # #[cfg(feature = "std")] {
 /// use ai_exr::prelude::*;
 ///
 /// // the type of the this image depends on the chosen options
@@ -213,6 +213,7 @@ pub struct ReadBuilder;
 ///     .on_progress(|progress| println!("progress: {:.1}", progress * 100.0)) // optional
 ///     .from_file("image.exr")
 ///     .unwrap(); // or `from_buffered(my_byte_slice)`
+/// # }
 /// ```
 ///
 /// You can alternatively use one of the following simpler functions:

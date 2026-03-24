@@ -4,8 +4,8 @@ extern crate bencher;
 extern crate ai_exr;
 use std::io::Cursor;
 
-use bencher::Bencher;
 use ai_exr::prelude::*;
+use bencher::Bencher;
 
 fn write_parallel_any_channels_to_buffered(bench: &mut Bencher) {
     let path = "tests/images/valid/custom/crowskull/crow_rle.exr";

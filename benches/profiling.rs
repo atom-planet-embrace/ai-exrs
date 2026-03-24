@@ -4,8 +4,8 @@ extern crate bencher;
 extern crate ai_exr;
 use std::{fs, io::Cursor};
 
-use bencher::Bencher;
 use ai_exr::{image::pixel_vec::PixelVec, prelude::*};
+use bencher::Bencher;
 
 const PROFILING_REPETITIONS: i32 = 1; // make this 100 for profiling longer periods
 

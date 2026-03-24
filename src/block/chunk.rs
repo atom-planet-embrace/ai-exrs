@@ -2,6 +2,7 @@
 //! Does not include the process of compression and decompression.
 
 use alloc::vec::Vec;
+
 use crate::meta::attribute::IntegerBounds;
 
 /// A generic block of pixel information.

@@ -4,8 +4,8 @@ extern crate bencher;
 extern crate ai_exr;
 use std::{fs, io::Cursor};
 
-use bencher::Bencher;
 use ai_exr::{image::pixel_vec::PixelVec, prelude::*};
+use bencher::Bencher;
 
 /// Read uncompressed (always single core)
 fn read_single_image_uncompressed_non_parallel_rgba(bench: &mut Bencher) {

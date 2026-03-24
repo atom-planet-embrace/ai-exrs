@@ -1,6 +1,7 @@
 //! How to write either a single or a list of layers.
 
 use alloc::vec::Vec;
+
 use crate::{
     block::BlockIndex,
     image::{

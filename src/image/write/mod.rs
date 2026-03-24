@@ -16,9 +16,6 @@ pub mod channels;
 pub mod layers;
 pub mod samples;
 
-use crate::io::BufWriter;
-use crate::io::Seek;
-
 use crate::{
     block::writer::ChunksWriter,
     error::UnitResult,
@@ -27,10 +24,9 @@ use crate::{
         write::layers::{LayersWriter, WritableLayers},
         Image,
     },
-    io::Write,
+    io::{BufWriter, Seek, Write},
     meta::Headers,
 };
-
 #[cfg(feature = "std")]
 use crate::{
     image::{IntoSample, SpecificChannels},
@@ -199,7 +195,10 @@ where
     /// bytes first, using `to_buffered`.
     #[inline]
     #[must_use]
-    pub fn to_unbuffered<const BUFFER_SIZE: usize>(self, unbuffered: impl Write + Seek) -> UnitResult {
+    pub fn to_unbuffered<const BUFFER_SIZE: usize>(
+        self,
+        unbuffered: impl Write + Seek,
+    ) -> UnitResult {
         self.to_buffered(BufWriter::<_, BUFFER_SIZE>::new(unbuffered))
     }
 

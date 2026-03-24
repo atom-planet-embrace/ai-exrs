@@ -2,6 +2,7 @@
 //! Defines some data types that list all standard attributes.
 
 use alloc::{boxed::Box, vec::Vec};
+
 use hashbrown::HashMap;
 
 use crate::meta::attribute::*; // FIXME shouldn't this need some more imports????

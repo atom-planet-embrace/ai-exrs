@@ -45,7 +45,7 @@ no_std_io = { version = "0.6", default-features = false, features = ["alloc"] } 
 hashbrown = { version = "0.16", default-features = false, features = ["default-hasher"] }
 
 [dev-dependencies]
-image = { version = "0.25.2", default-features = false }         # used to convert one exr to some pngs
+image = { version = "0.25.2", default-features = false, features = ["png"] }         # used to convert one exr to some pngs
 
 bencher = "0.1.5"
 walkdir = "2.3.2"         # automatically test things for all files in a directory
