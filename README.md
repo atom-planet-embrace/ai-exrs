@@ -182,12 +182,12 @@ so you could also link the github repository master branch.
 Example: [generate an rgb exr file](https://github.com/johannesvollmer/exrs/blob/master/examples/0_write_rgba.rs).
 
 ```rust
-extern crate exr;
+extern crate ai_exr;
 
 /// To write your image data, you need to specify how to retrieve a single pixel from it.
 /// The closure may capture variables or generate data on the fly.
 fn main() {
-    use exr::prelude::*;
+    use ai_exr::prelude::*;
 
     // write a file, with 32-bit float precision per channel
     write_rgba_file(
@@ -344,7 +344,7 @@ You may also configure your editor to run `cargo +nightly fmt` on save.
 To run all fast tests on your native system, use `cargo test`.
 
 To start fuzzing on your native system indefinitely,
-use `cargo test --package exr --test fuzz fuzz -- --exact --ignored`.
+use `cargo test --features std --package ai-exr --test fuzz fuzz -- --exact --ignored`.
 
 To run all fast tests on an emulated system, use one of the following commands.
 Each command requires a running `docker` instance,
