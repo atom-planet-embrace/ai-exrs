@@ -2,10 +2,7 @@
 //! [`from_file(path)`] method. This completes the builder and reads a complete
 //! image.
 
-use std::{
-    io::{BufReader, Read, Seek},
-    path::Path,
-};
+use crate::io::{Read, Seek};
 
 use crate::{
     block::{chunk::TileCoordinates, reader::ChunksReader, BlockIndex, UncompressedBlock},
@@ -96,13 +93,14 @@ where
     /// Read the exr image from a file.
     /// Use [`ReadImage::read_from_unbuffered`] instead, if you do not have a
     /// file.
+    #[cfg(feature = "std")]
     #[inline]
     #[must_use]
-    pub fn from_file<Layers>(self, path: impl AsRef<Path>) -> Result<Image<Layers>>
+    pub fn from_file<Layers>(self, path: impl AsRef<::std::path::Path>) -> Result<Image<Layers>>
     where
         for<'s> L: ReadLayers<'s, Layers = Layers>,
     {
-        self.from_unbuffered(std::fs::File::open(path)?)
+        self.from_unbuffered::<Layers, 8192>(::std::fs::File::open(path)?)
     }
 
     /// Buffer the reader and then read the exr image from it.
@@ -111,11 +109,11 @@ where
     /// have a file path.
     #[inline]
     #[must_use]
-    pub fn from_unbuffered<Layers>(self, unbuffered: impl Read + Seek) -> Result<Image<Layers>>
+    pub fn from_unbuffered<Layers, const BUFFER_SIZE: usize>(self, unbuffered: impl Read + Seek) -> Result<Image<Layers>>
     where
         for<'s> L: ReadLayers<'s, Layers = Layers>,
     {
-        self.from_buffered(BufReader::new(unbuffered))
+        self.from_buffered(crate::io::BufReader::<_, BUFFER_SIZE>::new(unbuffered))
     }
 
     /// Read the exr image from a buffered reader.

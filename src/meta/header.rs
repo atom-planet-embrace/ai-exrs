@@ -1,7 +1,8 @@
 //! Contains collections of common attributes.
 //! Defines some data types that list all standard attributes.
 
-use std::collections::HashMap;
+use alloc::{boxed::Box, vec::Vec};
+use hashbrown::HashMap;
 
 use crate::meta::attribute::*; // FIXME shouldn't this need some more imports????
 use crate::{math::Vec2, meta::*};
@@ -280,7 +281,7 @@ impl LayerAttributes {
         world_to_camera: Matrix4x4,
         world_to_normalized_device: Matrix4x4,
         field_of_view: impl Into<Vec2<f32>>,
-        depth_clip_range: std::ops::Range<f32>,
+        depth_clip_range: core::ops::Range<f32>,
     ) -> Self {
         let fov = field_of_view.into();
 
@@ -861,7 +862,7 @@ impl Header {
     // This function is used for writing the attributes to files.
     #[inline]
     pub fn all_named_attributes(&self) -> impl '_ + Iterator<Item = (&TextSlice, AttributeValue)> {
-        use std::iter::{empty, once, once_with};
+        use core::iter::{empty, once, once_with};
 
         use AttributeValue::*;
 
@@ -1395,8 +1396,8 @@ impl Default for LayerAttributes {
     }
 }
 
-impl std::fmt::Debug for LayerAttributes {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for LayerAttributes {
+    fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let default_self = Self::default();
 
         let mut debug = formatter.debug_struct("LayerAttributes (default values omitted)");

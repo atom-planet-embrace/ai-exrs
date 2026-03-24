@@ -6,12 +6,12 @@ extern crate rand;
 use rand::Rng;
 
 // exr imports
-extern crate exr;
+extern crate ai_exr;
 
 /// Generate a noisy image and write it to a file,
 /// also attaching some meta data.
 fn main() {
-    use exr::prelude::*;
+    use ai_exr::prelude::*;
 
     fn generate_f16_vector(size: Vec2<usize>) -> Vec<f16> {
         let mut values = vec![f16::from_f32(0.5); size.area()];

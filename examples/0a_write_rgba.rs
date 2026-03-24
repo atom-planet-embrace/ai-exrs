@@ -1,4 +1,4 @@
-extern crate exr;
+extern crate ai_exr;
 
 /// `exr` offers a few simplified functions for the most basic use cases.
 /// `write_rgb_f32_file` is a such a function, which writes a plain rgba exr
@@ -7,7 +7,7 @@ extern crate exr;
 /// To write your image data, you need to specify how to retrieve a single pixel
 /// from it. The closure may capture variables or generate data on the fly.
 fn main() {
-    use exr::prelude::*;
+    use ai_exr::prelude::*;
 
     // write a file, with 32-bit float precision per channel
     write_rgba_file(

@@ -1,12 +1,16 @@
 //! Error type definitions.
 
-pub use std::io::{Error as IoError, Result as IoResult};
-use std::{borrow::Cow, convert::TryFrom, error, fmt, io::ErrorKind, num::TryFromIntError};
+use alloc::borrow::Cow;
+use core::{convert::TryFrom, fmt, num::TryFromIntError};
+
+pub use no_std_io::io::{Error as IoError, Result as IoResult};
+
+use no_std_io::io::ErrorKind;
 
 // Export types
 
 /// A result that may contain an exr error.
-pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = core::result::Result<T, Error>;
 
 /// A result that, if ok, contains nothing, and otherwise contains an exr error.
 pub type UnitResult = Result<()>;
@@ -70,8 +74,9 @@ impl From<TryFromIntError> for Error {
     }
 }
 
-impl error::Error for Error {
-    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+impl core::error::Error for Error {
+    #[cfg(feature = "std")]
+    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
         match *self {
             Error::Io(ref err) => Some(err),
             _ => None,

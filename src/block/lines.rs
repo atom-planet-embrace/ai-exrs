@@ -1,6 +1,8 @@
 //! Extract lines from a block of pixel bytes.
 
-use std::{io::Cursor, ops::Range};
+use core::ops::Range;
+
+use no_std_io::io::Cursor;
 
 use smallvec::SmallVec;
 

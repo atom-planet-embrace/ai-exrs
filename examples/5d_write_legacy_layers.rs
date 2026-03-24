@@ -4,7 +4,7 @@ extern crate half;
 extern crate rand;
 
 // exr imports
-extern crate exr;
+extern crate ai_exr;
 
 // TODO create a dedicated reader and writer for this scenario
 
@@ -15,7 +15,7 @@ extern crate exr;
 /// since 2013. Use the natively supported exrs `Layer` types instead, if
 /// possible.
 fn main() {
-    use exr::prelude::*;
+    use ai_exr::prelude::*;
     // TODO simplify handling these types of layers using read() and write()
 
     let size = Vec2(512, 512);

@@ -8,7 +8,8 @@ mod pxr24;
 mod rle;
 mod zip;
 
-use std::convert::TryInto;
+use alloc::vec::Vec;
+use core::convert::TryInto;
 
 use crate::{
     error::{usize_to_i32, Error, Result, UnitResult},
@@ -150,8 +151,8 @@ pub enum Compression {
     HTJ2K256,
 }
 
-impl std::fmt::Display for Compression {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Compression {
+    fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
             formatter,
             "{} compression",
@@ -661,28 +662,24 @@ mod optimize_bytes {
         }
     }
 
-    use std::cell::Cell;
-    thread_local! {
-        // A buffer for reusing between invocations of interleaving and deinterleaving.
-        // Allocating memory is cheap, but zeroing or otherwise initializing it is not.
-        // Doing it hundreds of times (once per block) would be expensive.
-        // This optimization brings down the time spent in interleaving from 15% to 5%.
-        static SCRATCH_SPACE: Cell<Vec<u8>> = const { Cell::new(Vec::new()) };
-    }
-
+    #[cfg(feature = "std")]
     fn with_reused_buffer<F>(length: usize, mut func: F)
     where
         F: FnMut(&mut [u8]),
     {
+        use std::cell::Cell;
+        std::thread_local! {
+            // A buffer for reusing between invocations of interleaving and deinterleaving.
+            // Allocating memory is cheap, but zeroing or otherwise initializing it is not.
+            // Doing it hundreds of times (once per block) would be expensive.
+            // This optimization brings down the time spent in interleaving from 15% to 5%.
+            static SCRATCH_SPACE: Cell<alloc::vec::Vec<u8>> = const { Cell::new(alloc::vec::Vec::new()) };
+        }
         SCRATCH_SPACE.with(|scratch_space| {
             // reuse a buffer if we've already initialized one
             let mut buffer = scratch_space.take();
             if buffer.len() < length {
-                // Efficiently create a zeroed Vec by requesting zeroed memory from the OS.
-                // This is slightly faster than a `memcpy()` plus `memset()` that would happen
-                // otherwise, but is not a big deal either way since it's not a
-                // hot codepath.
-                buffer = vec![0u8; length];
+                buffer = alloc::vec![0u8; length];
             }
 
             // call the function
@@ -691,6 +688,15 @@ mod optimize_bytes {
             // save the internal buffer for reuse
             scratch_space.set(buffer);
         });
+    }
+
+    #[cfg(not(feature = "std"))]
+    fn with_reused_buffer<F>(length: usize, mut func: F)
+    where
+        F: FnMut(&mut [u8]),
+    {
+        let mut buffer = alloc::vec![0u8; length];
+        func(&mut buffer[..length]);
     }
 
     /// Interleave the bytes such that the second half of the array is every
@@ -773,7 +779,7 @@ mod optimize_bytes {
         });
     }
 
-    #[cfg(test)]
+    #[cfg(all(test, feature = "std"))]
     pub mod test {
 
         #[test]
@@ -800,7 +806,7 @@ mod optimize_bytes {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "std"))]
 mod test {
     use super::*;
     use crate::{block::samples::IntoNativeSample, meta::attribute::ChannelDescription};

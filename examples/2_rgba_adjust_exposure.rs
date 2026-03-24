@@ -1,5 +1,5 @@
 // exr imports
-extern crate exr;
+extern crate ai_exr;
 
 /// Read an rgba image, increase the exposure, and then write it back.
 /// Uses multi-core compression where appropriate.
@@ -7,7 +7,7 @@ extern crate exr;
 /// All non-rgba channels and all layers except the first rgba layers will not
 /// be present in the new file.
 fn main() {
-    use exr::prelude::*;
+    use ai_exr::prelude::*;
 
     /// This is an example of a custom image type.
     /// You use your own image struct here.

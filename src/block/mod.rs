@@ -1,5 +1,5 @@
 //! This is the low-level interface for the raw blocks of an image.
-//! See `exr::image` module for a high-level interface.
+//! See `ai_exr::image` module for a high-level interface.
 //!
 //! Handle compressed and uncompressed pixel byte blocks. Includes compression
 //! and decompression, and reading a complete image into blocks.
@@ -14,7 +14,8 @@ pub mod chunk;
 pub mod lines;
 pub mod samples;
 
-use std::io::{Read, Seek, Write};
+use alloc::vec::Vec;
+use crate::io::{Read, Seek, Write};
 
 use crate::{
     block::{

@@ -49,13 +49,17 @@ pub mod levels;
 pub mod samples;
 pub mod specific_channels;
 
-use std::path::Path;
+#[cfg(feature = "std")]
+use ::std::path::Path;
 
+use crate::image::read::samples::ReadFlatSamples;
+
+#[cfg(feature = "std")]
 use crate::{
     block::samples::FromNativeSample,
     error::Result,
     image::{
-        read::{image::ReadLayers, layers::ReadChannels, samples::ReadFlatSamples},
+        read::{image::ReadLayers, layers::ReadChannels},
         AnyChannels, AnyImage, FlatImage, FlatSamples, Image, Layer, PixelLayersImage,
         RgbaChannels,
     },
@@ -68,6 +72,7 @@ use crate::{
 /// Does not support deep data yet. Uses parallel decompression and relaxed
 /// error handling. Inspect the source code of this function if you need
 /// customization.
+#[cfg(feature = "std")]
 pub fn read_all_data_from_file(path: impl AsRef<Path>) -> Result<AnyImage> {
     read()
         .no_deep_data() // TODO deep data
@@ -82,6 +87,7 @@ pub fn read_all_data_from_file(path: impl AsRef<Path>) -> Result<AnyImage> {
 /// No deep data, no resolution levels, all channels, all layers.
 /// Uses parallel decompression and relaxed error handling.
 /// Inspect the source code of this function if you need customization.
+#[cfg(feature = "std")]
 pub fn read_all_flat_layers_from_file(path: impl AsRef<Path>) -> Result<FlatImage> {
     read()
         .no_deep_data()
@@ -95,6 +101,7 @@ pub fn read_all_flat_layers_from_file(path: impl AsRef<Path>) -> Result<FlatImag
 /// No deep data, no resolution levels, all channels, first layer.
 /// Uses parallel decompression and relaxed error handling.
 /// Inspect the source code of this function if you need customization.
+#[cfg(feature = "std")]
 pub fn read_first_flat_layer_from_file(
     path: impl AsRef<Path>,
 ) -> Result<Image<Layer<AnyChannels<FlatSamples>>>> {
@@ -122,6 +129,7 @@ pub fn read_first_flat_layer_from_file(
 /// it must be a tuple containing four values, each being either `f16`, `f32`,
 /// `u32` or `Sample`.
 // FIXME Set and Create should not need to be static
+#[cfg(feature = "std")]
 pub fn read_all_rgba_layers_from_file<R, G, B, A, Set: 'static, Create: 'static, Pixels: 'static>(
     path: impl AsRef<Path>,
     create: Create,
@@ -160,6 +168,7 @@ where
 /// it must be a tuple containing four values, each being either `f16`, `f32`,
 /// `u32` or `Sample`.
 // FIXME Set and Create should not need to be static
+#[cfg(feature = "std")]
 pub fn read_first_rgba_layer_from_file<R, G, B, A, Set: 'static, Create: 'static, Pixels: 'static>(
     path: impl AsRef<Path>,
     create: Create,
@@ -192,7 +201,7 @@ pub struct ReadBuilder;
 /// Allows you to exactly specify how to load the image, for example:
 ///
 /// ```no_run
-/// use exr::prelude::*;
+/// use ai_exr::prelude::*;
 ///
 /// // the type of the this image depends on the chosen options
 /// let image = read()

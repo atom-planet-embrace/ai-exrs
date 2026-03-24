@@ -1,11 +1,11 @@
 #[macro_use]
 extern crate bencher;
 
-extern crate exr;
+extern crate ai_exr;
 use std::{fs, io::Cursor};
 
 use bencher::Bencher;
-use exr::{block::samples::FromNativeSample, image::pixel_vec::PixelVec, prelude::*};
+use ai_exr::{block::samples::FromNativeSample, image::pixel_vec::PixelVec, prelude::*};
 
 const F32_ZIPS_PATH: &str = "tests/images/valid/custom/crowskull/crow_zips.exr";
 const F32_UNCOMPRESSED_PATH: &str = "tests/images/valid/custom/crowskull/crow_uncompressed.exr";
@@ -90,7 +90,7 @@ fn read_file_from_memory_as<T>(file: &[u8], parallel: bool) -> RgbaImage<PixelVe
 where
     T: FromNativeSample,
 {
-    let read = exr::prelude::read()
+    let read = ai_exr::prelude::read()
         .no_deep_data()
         .largest_resolution_level()
         .rgba_channels(PixelVec::<(T, T, T, T)>::constructor, PixelVec::set_pixel)

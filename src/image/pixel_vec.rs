@@ -5,6 +5,7 @@
 //! Use the function `PixelVec::new` to create a pixel vector which can be
 //! written to a file.
 
+use alloc::vec::Vec;
 use super::*;
 
 /// Store all samples in a single array.
@@ -125,11 +126,11 @@ where
     }
 }
 
-use std::fmt::*;
+use core::fmt::*;
 
 impl<T> Debug for PixelVec<T> {
     #[inline]
-    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(formatter, "[{}; {}]", std::any::type_name::<T>(), self.pixels.len())
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> core::fmt::Result {
+        write!(formatter, "[{}; {}]", core::any::type_name::<T>(), self.pixels.len())
     }
 }

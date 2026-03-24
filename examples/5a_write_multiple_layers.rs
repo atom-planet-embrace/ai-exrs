@@ -3,12 +3,12 @@ extern crate rand;
 extern crate smallvec;
 
 // exr imports
-extern crate exr;
+extern crate ai_exr;
 
 /// Writes multiple layers into one exr file
 /// Note: this may not be supported by legacy software
 fn main() {
-    use exr::prelude::*;
+    use ai_exr::prelude::*;
     let size = Vec2(512, 512);
 
     let layer1 = Layer::new(

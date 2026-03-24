@@ -1,3 +1,4 @@
+use alloc::vec::Vec;
 use super::{optimize_bytes::*, Error, Result, *};
 
 // inspired by  https://github.com/openexr/openexr/blob/master/OpenEXR/IlmImf/ImfRle.cpp

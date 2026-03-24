@@ -1,9 +1,9 @@
 use wasm_bindgen::prelude::*;
-use exr::prelude::*;
-use exr::image::AnyChannels;
+use ai_exr::prelude::*;
+use ai_exr::image::AnyChannels;
 use std::io::Cursor;
 use smallvec::smallvec;
-use exr::image::pixel_vec::PixelVec;
+use ai_exr::image::pixel_vec::PixelVec;
 
 /// Initialize panic hook for better error messages in browser console.
 /// This is called automatically when the WASM module loads - no need to call manually.
@@ -32,12 +32,12 @@ pub enum SamplePrecision {
     U32,
 }
 
-impl From<SamplePrecision> for exr::meta::attribute::SampleType {
+impl From<SamplePrecision> for ai_exr::meta::attribute::SampleType {
     fn from(precision: SamplePrecision) -> Self {
         match precision {
-            SamplePrecision::F16 => exr::meta::attribute::SampleType::F16,
-            SamplePrecision::F32 => exr::meta::attribute::SampleType::F32,
-            SamplePrecision::U32 => exr::meta::attribute::SampleType::U32,
+            SamplePrecision::F16 => ai_exr::meta::attribute::SampleType::F16,
+            SamplePrecision::F32 => ai_exr::meta::attribute::SampleType::F32,
+            SamplePrecision::U32 => ai_exr::meta::attribute::SampleType::U32,
         }
     }
 }
@@ -117,7 +117,7 @@ impl ExrEncoder {
             )));
         }
 
-        let sample_type: exr::meta::attribute::SampleType = precision.into();
+        let sample_type: ai_exr::meta::attribute::SampleType = precision.into();
 
         let any_channels = {
             if interleaved.len() == 1 {
@@ -165,7 +165,7 @@ impl ExrEncoder {
             .map_err(|e| JsValue::from_str(&format!("EXR encoding error: {}", e)))
     }
 
-    fn build_and_encode(&self) -> std::result::Result<Vec<u8>, exr::error::Error> {
+    fn build_and_encode(&self) -> std::result::Result<Vec<u8>, ai_exr::error::Error> {
         let size = Vec2(self.width, self.height);
 
         // Assemble layers from pre-built channel data
@@ -211,9 +211,9 @@ impl ExrEncoder {
     fn make_channel(
         name: &str,
         data: Vec<f32>,
-        sample_type: exr::meta::attribute::SampleType,
+        sample_type: ai_exr::meta::attribute::SampleType,
     ) -> AnyChannel<FlatSamples> {
-        use exr::meta::attribute::SampleType;
+        use ai_exr::meta::attribute::SampleType;
 
         let samples = match sample_type {
             SampleType::F16 => {
@@ -338,7 +338,7 @@ pub fn read_exr(data: &[u8]) -> std::result::Result<ExrDecoder, JsValue> {
 /// interleaved format. Returns the first valid layer with RGBA channels.
 #[wasm_bindgen(js_name = readExrRgba)]
 pub fn read_exr_rgba(data: &[u8]) -> std::result::Result<ExrSimpleImage, JsValue> {
-    use exr::prelude::*;
+    use ai_exr::prelude::*;
 
     let image = read()
         .no_deep_data()
@@ -392,7 +392,7 @@ impl ExrSimpleImage {
 /// interleaved format. Returns the first valid layer with RGB channels.
 #[wasm_bindgen(js_name = readExrRgb)]
 pub fn read_exr_rgb(data: &[u8]) -> std::result::Result<ExrSimpleImage, JsValue> {
-    use exr::prelude::*;
+    use ai_exr::prelude::*;
 
     let image = read()
         .no_deep_data()
@@ -458,8 +458,8 @@ pub fn write_exr_rgb(
 }
 
 /// Internal implementation of EXR reading (without JsValue for testing).
-fn read_exr_internal(data: &[u8]) -> std::result::Result<ExrDecoder, exr::error::Error> {
-    use exr::prelude::*;
+fn read_exr_internal(data: &[u8]) -> std::result::Result<ExrDecoder, ai_exr::error::Error> {
+    use ai_exr::prelude::*;
 
     let image = read()
         .no_deep_data()

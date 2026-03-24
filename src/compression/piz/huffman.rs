@@ -3,12 +3,12 @@
 //!    by Christian Rouet for his PIZ image file format.
 // see https://github.com/AcademySoftwareFoundation/openexr/blob/88246d991e0318c043e6f584f7493da08a31f9f8/OpenEXR/IlmImf/ImfHuf.cpp
 
-use std::{
-    cmp::Ordering,
-    collections::BinaryHeap,
-    convert::TryFrom,
-    io::{Cursor, Read, Write},
-};
+use alloc::{collections::BinaryHeap, vec::Vec};
+use core::{cmp::Ordering, convert::TryFrom};
+
+use no_std_io::io::{Read, Write};
+
+use crate::io::WriteCursor;
 
 use smallvec::SmallVec;
 
@@ -64,7 +64,7 @@ pub fn compress(uncompressed: &[u16]) -> Result<Vec<u8>> {
     let mut frequencies = count_frequencies(uncompressed);
     let (min_code_index, max_code_index) = build_encoding_table(&mut frequencies)?;
 
-    let mut result = Cursor::new(Vec::with_capacity(uncompressed.len()));
+    let mut result = WriteCursor::new(Vec::with_capacity(uncompressed.len()));
     u32::write_slice_le(&mut result, &[0; 5])?; // we come back to these later after we know more about the compressed data
 
     let table_start = result.position();
@@ -389,7 +389,7 @@ fn read_code_into_vec(
         }
 
         let repeated_code = *out.last().unwrap();
-        out.extend(std::iter::repeat(repeated_code).take(code_repetitions));
+        out.extend(core::iter::repeat(repeated_code).take(code_repetitions));
     } else if out.len() < max_len {
         // implies that code is not larger than u16???
         out.push(u16::try_from(code)?);
@@ -469,7 +469,7 @@ fn encode_with_frequencies(
     frequencies: &[u64],
     uncompressed: &[u16],
     run_length_code: usize,
-    mut out: &mut Cursor<Vec<u8>>,
+    mut out: &mut WriteCursor,
 ) -> Result<u64> {
     let mut code_bits = 0;
     let mut code_bit_count = 0;
@@ -536,7 +536,7 @@ fn pack_encoding_table(
     frequencies: &[u64],
     min_index: usize,
     max_index: usize,
-    mut out: &mut Cursor<Vec<u8>>,
+    mut out: &mut WriteCursor,
 ) -> UnitResult {
     let mut code_bits = 0_u64;
     let mut code_bit_count = 0_u64;

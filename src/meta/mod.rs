@@ -1,11 +1,12 @@
 //! Describes all meta data possible in an exr file.
 //! Contains functionality to read and write meta data from bytes.
-//! Browse the `exr::image` module to get started with the high-level interface.
+//! Browse the `ai_exr::image` module to get started with the high-level interface.
 
 pub mod attribute;
 pub mod header;
 
-use std::{collections::HashSet, convert::TryFrom, fs::File, io::BufReader};
+use alloc::{collections::BTreeSet, vec::Vec};
+use core::convert::TryFrom;
 
 use ::smallvec::SmallVec;
 
@@ -258,7 +259,7 @@ pub fn compute_level_count(round: RoundingMode, full_res: usize) -> usize {
 // TODO this should be cached? log2 may be very expensive
 pub fn compute_level_size(round: RoundingMode, full_res: usize, level_index: usize) -> usize {
     assert!(
-        level_index < std::mem::size_of::<usize>() * 8,
+        level_index < core::mem::size_of::<usize>() * 8,
         "largest level size exceeds maximum integer value"
     );
     round.divide(full_res, 1 << level_index).max(1)
@@ -369,9 +370,10 @@ impl MetaData {
     /// Read the exr meta data from a file.
     /// Use `read_from_unbuffered` instead if you do not have a file.
     /// Does not validate the meta data.
+    #[cfg(feature = "std")]
     #[must_use]
     pub fn read_from_file(path: impl AsRef<::std::path::Path>, pedantic: bool) -> Result<Self> {
-        Self::read_from_unbuffered(File::open(path)?, pedantic)
+        Self::read_from_unbuffered::<8192>(::std::fs::File::open(path)?, pedantic)
     }
 
     /// Buffer the reader and then read the exr meta data from it.
@@ -379,8 +381,8 @@ impl MetaData {
     /// Use `read_from_file` if you have a file path.
     /// Does not validate the meta data.
     #[must_use]
-    pub fn read_from_unbuffered(unbuffered: impl Read, pedantic: bool) -> Result<Self> {
-        Self::read_from_buffered(BufReader::new(unbuffered), pedantic)
+    pub fn read_from_unbuffered<const BUFFER_SIZE: usize>(unbuffered: impl Read, pedantic: bool) -> Result<Self> {
+        Self::read_from_buffered(crate::io::BufReader::<_, BUFFER_SIZE>::new(unbuffered), pedantic)
     }
 
     /// Read the exr meta data from a reader.
@@ -561,7 +563,7 @@ impl MetaData {
 
         if pedantic {
             // check for duplicate header names
-            let mut header_names = HashSet::with_capacity(headers.len());
+            let mut header_names = BTreeSet::new();
             for header in headers {
                 if !header_names.insert(&header.own_attributes.layer_name) {
                     return Err(Error::invalid(format!(

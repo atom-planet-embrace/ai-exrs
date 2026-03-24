@@ -3,17 +3,17 @@ extern crate rand;
 
 use std::{fs::File, io::BufReader};
 
-use exr::block::reader::ChunksReader;
+use ai_exr::block::reader::ChunksReader;
 
 // exr imports
-extern crate exr;
+extern crate ai_exr;
 
 /// Collects the average pixel value for each channel.
 /// Does not load the whole image into memory at once: only processes the image
 /// block by block. On my machine, this program analyzes a 3GB file while only
 /// allocating 1.1MB.
 fn main() {
-    use exr::prelude::*;
+    use ai_exr::prelude::*;
 
     let file = BufReader::new(
         File::open("3GB.exr")
@@ -49,7 +49,7 @@ fn main() {
     // -- read the file, summing up the average pixel values --
 
     // start reading the file, extracting the meta data of the image
-    let reader = exr::block::read(file, true).unwrap();
+    let reader = ai_exr::block::read(file, true).unwrap();
 
     // print progress only if it advances more than 1%
     let mut current_progress_percentage = 0;

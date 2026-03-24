@@ -1,5 +1,6 @@
 //! How to write either a single or a list of layers.
 
+use alloc::vec::Vec;
 use crate::{
     block::BlockIndex,
     image::{
@@ -137,7 +138,7 @@ where
 {
     fn extract_uncompressed_block(&self, headers: &[Header], block: BlockIndex) -> Vec<u8> {
         self.layers[block.layer]
-            .extract_uncompressed_block(std::slice::from_ref(&headers[block.layer]), block)
+            .extract_uncompressed_block(core::slice::from_ref(&headers[block.layer]), block)
         // TODO no array-vs-first
     }
 }
@@ -185,7 +186,7 @@ where
         let layer_index = inner_headers.len();
         RecursiveLayersWriter {
             inner: self.inner.create_writer(inner_headers),
-            value: (layer_index, self.value.create_writer(std::slice::from_ref(own_header))), /* TODO no slice */
+            value: (layer_index, self.value.create_writer(core::slice::from_ref(own_header))), /* TODO no slice */
         }
     }
 }
@@ -215,7 +216,7 @@ where
         let (layer_index, layer) = &self.value;
         if *layer_index == block.layer {
             let header = headers.get(*layer_index).expect("layer index bug");
-            layer.extract_uncompressed_block(std::slice::from_ref(header), block)
+            layer.extract_uncompressed_block(core::slice::from_ref(header), block)
         // TODO no slice?
         } else {
             self.inner.extract_uncompressed_block(headers, block)

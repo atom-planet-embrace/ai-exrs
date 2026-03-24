@@ -2,7 +2,7 @@
 //!
 //! First, call `my_image.write()`. The resulting value can be customized, like
 //! this: ```no_run
-//! use exr::prelude::*;
+//! use ai_exr::prelude::*;
 //! #   let my_image: FlatImage = unimplemented!();
 //!
 //! my_image
@@ -16,7 +16,8 @@ pub mod channels;
 pub mod layers;
 pub mod samples;
 
-use std::io::{BufWriter, Seek};
+use crate::io::BufWriter;
+use crate::io::Seek;
 
 use crate::{
     block::writer::ChunksWriter,
@@ -24,11 +25,16 @@ use crate::{
     image::{
         ignore_progress,
         write::layers::{LayersWriter, WritableLayers},
-        Image, IntoSample, SpecificChannels,
+        Image,
     },
     io::Write,
-    math::Vec2,
     meta::Headers,
+};
+
+#[cfg(feature = "std")]
+use crate::{
+    image::{IntoSample, SpecificChannels},
+    math::Vec2,
 };
 
 /// An oversimplified function for "just write the damn file already" use cases.
@@ -40,8 +46,9 @@ use crate::{
 /// Each of `R`, `G`, `B` and `A` can be either `f16`, `f32`, `u32`, or
 /// `Sample`.
 // TODO explain pixel tuple f32,f16,u32
+#[cfg(feature = "std")]
 pub fn write_rgba_file<R, G, B, A>(
-    path: impl AsRef<std::path::Path>,
+    path: impl AsRef<::std::path::Path>,
     width: usize,
     height: usize,
     colors: impl Sync + Fn(usize, usize) -> (R, G, B, A),
@@ -64,8 +71,9 @@ where
 ///
 /// Each of `R`, `G`, and `B` can be either `f16`, `f32`, `u32`, or `Sample`.
 // TODO explain pixel tuple f32,f16,u32
+#[cfg(feature = "std")]
 pub fn write_rgb_file<R, G, B>(
-    path: impl AsRef<std::path::Path>,
+    path: impl AsRef<::std::path::Path>,
     width: usize,
     height: usize,
     colors: impl Sync + Fn(usize, usize) -> (R, G, B),
@@ -175,11 +183,12 @@ where
     /// Write the exr image to a file.
     /// Use `to_unbuffered` instead, if you do not have a file.
     /// If an error occurs, attempts to delete the partially written file.
+    #[cfg(feature = "std")]
     #[inline]
     #[must_use]
-    pub fn to_file(self, path: impl AsRef<std::path::Path>) -> UnitResult {
+    pub fn to_file(self, path: impl AsRef<::std::path::Path>) -> UnitResult {
         crate::io::attempt_delete_file_on_write_error(path.as_ref(), move |write| {
-            self.to_unbuffered(write)
+            self.to_unbuffered::<8192>(write)
         })
     }
 
@@ -190,8 +199,8 @@ where
     /// bytes first, using `to_buffered`.
     #[inline]
     #[must_use]
-    pub fn to_unbuffered(self, unbuffered: impl Write + Seek) -> UnitResult {
-        self.to_buffered(BufWriter::new(unbuffered))
+    pub fn to_unbuffered<const BUFFER_SIZE: usize>(self, unbuffered: impl Write + Seek) -> UnitResult {
+        self.to_buffered(BufWriter::<_, BUFFER_SIZE>::new(unbuffered))
     }
 
     /// Write the exr image to a writer.

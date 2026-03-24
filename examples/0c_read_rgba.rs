@@ -1,11 +1,11 @@
-extern crate exr;
+extern crate ai_exr;
 
 /// `exr` offers a few simplified functions for the most basic use cases.
 /// `read_first_rgba_layer_from_file` is a such a function, which loads rgba exr
 /// files. To load the pixel data, you need to specify
 /// how to create and how to set the pixels of your image.
 fn main() {
-    let image = exr::prelude::read_first_rgba_layer_from_file(
+    let image = ai_exr::prelude::read_first_rgba_layer_from_file(
         "generated_rgba.exr",
         // instantiate your image type with the size of the image in file
         |resolution, _| {

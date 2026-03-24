@@ -1,6 +1,7 @@
 //! Read and write already compressed pixel data blocks.
 //! Does not include the process of compression and decompression.
 
+use alloc::vec::Vec;
 use crate::meta::attribute::IntegerBounds;
 
 /// A generic block of pixel information.
@@ -389,7 +390,7 @@ use crate::{
 };
 
 /// Validation of chunks is done while reading and writing the actual data. (For
-/// example in `exr::full_image`)
+/// example in `ai_exr::full_image`)
 impl Chunk {
     /// Without validation, write this instance to the byte stream.
     pub fn write(&self, write: &mut impl Write, header_count: usize) -> UnitResult {

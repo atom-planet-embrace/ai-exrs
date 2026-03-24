@@ -1,11 +1,11 @@
 #[macro_use]
 extern crate bencher;
 
-extern crate exr;
+extern crate ai_exr;
 use std::{fs, io::Cursor};
 
 use bencher::Bencher;
-use exr::{image::pixel_vec::PixelVec, prelude::*};
+use ai_exr::{image::pixel_vec::PixelVec, prelude::*};
 
 const PROFILING_REPETITIONS: i32 = 1; // make this 100 for profiling longer periods
 
@@ -17,7 +17,7 @@ fn read_single_image_from_buffer_rgba_f32_as_f16(bench: &mut Bencher) {
 
     bench.iter(|| {
         for _ in 0..PROFILING_REPETITIONS {
-            let image = exr::prelude::read()
+            let image = ai_exr::prelude::read()
                 .no_deep_data()
                 .largest_resolution_level()
                 .rgba_channels(PixelVec::<(f16, f16, f16, f16)>::constructor, PixelVec::set_pixel)

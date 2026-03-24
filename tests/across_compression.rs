@@ -1,6 +1,8 @@
+#![cfg(feature = "std")]
+
 use std::path::Path;
 
-use exr::{image::validate_results::ValidateResult, prelude::*};
+use ai_exr::{image::validate_results::ValidateResult, prelude::*};
 
 fn dir() -> &'static Path {
     Path::new("tests/images/valid/custom/compression_methods")

@@ -288,8 +288,9 @@ fn decode_16bit(l: u16, h: u16) -> (u16, u16) {
     (a as u16, b as u16) // TODO explicitly wrap?
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "std"))]
 mod test {
+    use alloc::vec::Vec;
     use crate::{compression::piz::wavelet::is_14_bit, math::Vec2};
 
     #[test]
@@ -435,7 +436,7 @@ mod test {
         }
 
         fn verticals(size: Vec2<usize>, max_value: u16) -> Vec<u16> {
-            std::iter::repeat_with(|| {
+            core::iter::repeat_with(|| {
                 (0..size.0).map(|x| {
                     if x & 1 != 0 {
                         0
@@ -452,7 +453,7 @@ mod test {
         fn horizontals(size: Vec2<usize>, max_value: u16) -> Vec<u16> {
             (0..size.1)
                 .flat_map(|y| {
-                    std::iter::repeat(if y & 1 != 0 {
+                    core::iter::repeat(if y & 1 != 0 {
                         0
                     } else {
                         max_value

@@ -1,11 +1,12 @@
 //! Contains some "test" functions that were be used for developing.
+#![cfg(feature = "std")]
 
-extern crate exr;
+extern crate ai_exr;
 extern crate smallvec;
 
 use std::{ffi::OsStr, io::Cursor, path::PathBuf};
 
-use exr::{image::validate_results::ValidateResult, meta::header::Header, prelude::*};
+use ai_exr::{image::validate_results::ValidateResult, meta::header::Header, prelude::*};
 use rayon::{iter::ParallelIterator, prelude::IntoParallelIterator};
 
 fn exr_files() -> impl Iterator<Item = PathBuf> {
@@ -71,7 +72,7 @@ pub fn test_roundtrip() {
     // let path = "tests/images/valid/openexr/v2/Stereo/Balls.exr";
     // let path = "tests/images/valid/openexr/v2/Stereo/Ground.exr";
 
-    println!("{:?}", exr::meta::MetaData::read_from_file(path, true));
+    println!("{:?}", ai_exr::meta::MetaData::read_from_file(path, true));
 
     let read_image = read()
         .no_deep_data()

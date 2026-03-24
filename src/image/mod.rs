@@ -23,7 +23,7 @@
 //! for example if you want to use a custom sample storage.
 //!
 //! This is the high-level interface for the pixels of an image.
-//! See `exr::blocks` module for a low-level interface.
+//! See `ai_exr::blocks` module for a low-level interface.
 
 pub mod crop;
 pub mod pixel_vec;
@@ -32,6 +32,7 @@ pub mod recursive;
 pub mod write;
 // pub mod channel_groups;
 
+use alloc::{boxed::Box, string::String, vec::Vec};
 use half::f16;
 use smallvec::SmallVec;
 
@@ -295,7 +296,7 @@ pub enum FlatSamples {
 // U32(Vec<Vec<u32>>),
 // }
 
-use std::{marker::PhantomData, ops::Not};
+use core::{marker::PhantomData, ops::Not};
 
 use crate::{
     block::samples::{Sample, *},
@@ -702,7 +703,7 @@ impl<LevelSamples> Levels<LevelSamples> {
     /// Get a slice of all resolution levels, sorted by size, decreasing.
     pub fn levels_as_slice(&self) -> &[LevelSamples] {
         match self {
-            Self::Singular(data) => std::slice::from_ref(data),
+            Self::Singular(data) => core::slice::from_ref(data),
             Self::Mip {
                 level_data,
                 ..
@@ -718,7 +719,7 @@ impl<LevelSamples> Levels<LevelSamples> {
     /// decreasing.
     pub fn levels_as_slice_mut(&mut self) -> &mut [LevelSamples] {
         match self {
-            Self::Singular(data) => std::slice::from_mut(data),
+            Self::Singular(data) => core::slice::from_mut(data),
             Self::Mip {
                 level_data,
                 ..
@@ -841,7 +842,7 @@ impl<'s, ChannelData: 's> Layer<ChannelData> {
         levels: &'l Levels<L>,
     ) -> Box<dyn 'l + Iterator<Item = (&'l L, Vec2<usize>)>> {
         match levels {
-            Levels::Singular(level) => Box::new(std::iter::once((level, self.size))),
+            Levels::Singular(level) => Box::new(core::iter::once((level, self.size))),
 
             Levels::Mip {
                 rounding_mode,
@@ -1023,8 +1024,8 @@ impl<'s, SampleData: 's> AnyChannel<SampleData> {
     // }
 }
 
-impl std::fmt::Debug for FlatSamples {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for FlatSamples {
+    fn fmt(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         if self.len() <= 6 {
             match self {
                 Self::F16(vec) => vec.fmt(formatter),
@@ -1045,7 +1046,8 @@ impl std::fmt::Debug for FlatSamples {
 /// Supports lossy compression methods.
 // #[cfg(test)] TODO do not ship this code
 pub mod validate_results {
-    use std::ops::Not;
+    use alloc::{string::String, vec::Vec};
+    use core::ops::Not;
 
     use smallvec::Array;
 
@@ -1104,7 +1106,7 @@ pub mod validate_results {
     }
 
     /// If invalid, contains the error message.
-    pub type ValidationResult = std::result::Result<(), String>;
+    pub type ValidationResult = core::result::Result<(), String>;
 
     impl<C> ValidateResult for Image<C>
     where
@@ -1557,9 +1559,10 @@ pub mod validate_results {
         }
     }
 
-    #[cfg(test)]
+    #[cfg(all(test, feature = "std"))]
     mod test_value_result {
-        use std::{f32::consts::*, io::Cursor};
+        use alloc::{string::String, vec::Vec};
+        use std::{f32::consts::*, io::Cursor, println};
 
         use crate::{
             image::{
@@ -1771,6 +1774,7 @@ pub mod validate_results {
         }
     }
 
+    #[cfg(feature = "std")]
     #[test]
     fn test_nan_compression_attribute() {
         use std::io::Cursor;

@@ -1,9 +1,9 @@
 // exr imports
-extern crate exr;
+extern crate ai_exr;
 
 /// Create an image with strange channels and write it to a file.
 fn main() {
-    use exr::prelude::*;
+    use ai_exr::prelude::*;
 
     let pixels = SpecificChannels::build()
         .with_channel("Kharthanasus Korthus")

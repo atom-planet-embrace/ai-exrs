@@ -1,13 +1,13 @@
 extern crate image as png;
 use std::cmp::Ordering;
 
-extern crate exr;
+extern crate ai_exr;
 
 /// Extract all exr pixel information into pngs.
 /// Writes each channel of each mip map of each layer as one grayscale png.
 /// May appear black for single-color images.
 pub fn main() {
-    use exr::prelude::*;
+    use ai_exr::prelude::*;
 
     let path = "mip_maps.exr";
     let start_time = ::std::time::Instant::now();

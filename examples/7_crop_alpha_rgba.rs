@@ -1,13 +1,13 @@
 extern crate image as png;
 
-extern crate exr;
+extern crate ai_exr;
 
 /// Read an rgba image, or fail if none can be found.
 /// Then crop away transparent pixels,
 /// and write the cropped result to another file.
 /// This retains only the rgb pixels, and no other layers.
 pub fn main() {
-    use exr::{image::pixel_vec::*, prelude::*}; // import predefined pixel storage
+    use ai_exr::{image::pixel_vec::*, prelude::*}; // import predefined pixel storage
 
     let path = "tests/images/valid/custom/oh crop.exr";
 

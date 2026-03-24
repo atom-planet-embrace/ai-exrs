@@ -1,7 +1,8 @@
 #[rustfmt::skip]
 mod table;
 
-use std::{cmp::min, mem::size_of};
+use alloc::vec::Vec;
+use core::{cmp::min, mem::size_of};
 
 use lebe::io::{ReadPrimitive, WriteEndian};
 use table::{EXP_TABLE, LOG_TABLE};
@@ -471,7 +472,7 @@ pub fn decompress(
             if channel.sample_type == SampleType::F16 {
                 // TODO simplify this and make it memcpy on little endian systems
                 // https://github.com/AcademySoftwareFoundation/openexr/blob/a03aca31fa1ce85d3f28627dbb3e5ded9494724a/src/lib/OpenEXR/ImfB44Compressor.cpp#L943
-                for mut f16_bytes in channel_bytes.chunks(std::mem::size_of::<f16>()) {
+                for mut f16_bytes in channel_bytes.chunks(core::mem::size_of::<f16>()) {
                     let native_endian_f16_bits =
                         u16::read_from_little_endian(&mut f16_bytes).expect("memory read failed");
                     out.write_as_native_endian(&native_endian_f16_bits)
@@ -582,7 +583,7 @@ pub fn compress(
 
     // Generate a whole buffer that we will crop to proper size once compression is
     // done.
-    let mut b44_compressed = vec![0; std::cmp::max(2048, uncompressed_le.len())];
+    let mut b44_compressed = vec![0; core::cmp::max(2048, uncompressed_le.len())];
     let mut b44_end = 0; // Buffer byte index for storing next compressed values.
 
     for channel in &channel_data {
@@ -685,8 +686,9 @@ pub fn compress(
     Ok(b44_compressed)
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "std"))]
 mod test {
+    use alloc::vec::Vec;
     use crate::{
         compression::{
             b44,

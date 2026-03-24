@@ -1,4 +1,6 @@
-extern crate exr;
+#![cfg(feature = "std")]
+
+extern crate ai_exr;
 
 extern crate smallvec;
 
@@ -10,7 +12,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use exr::{
+use ai_exr::{
     block::samples::IntoNativeSample,
     error::{Error, UnitResult},
     image::validate_results::ValidateResult,
@@ -139,7 +141,7 @@ fn round_trip_parallel_file(file: &[u8]) -> Result<()> {
 /// does not check any content, just checks whether a read error or panic
 /// happened.
 fn check_all_files_in_repo<T>(
-    operation: impl Sync + std::panic::RefUnwindSafe + Fn(&Path) -> exr::error::Result<T>,
+    operation: impl Sync + std::panic::RefUnwindSafe + Fn(&Path) -> ai_exr::error::Result<T>,
 ) {
     #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
     enum Result {

@@ -1,11 +1,11 @@
 // exr imports
-extern crate exr;
+extern crate ai_exr;
 
 /// Print the custom meta data of a file, excluding technical encoding meta
 /// data. Prints compression method and tile size, but not purely technical data
 /// like chunk count.
 fn main() {
-    use exr::prelude::*;
+    use ai_exr::prelude::*;
 
     let meta_data = MetaData::read_from_file(
         "generated_rgba_with_meta.exr",

@@ -3,18 +3,18 @@ extern crate rand;
 extern crate smallvec;
 
 // exr imports
-extern crate exr;
+extern crate ai_exr;
 
 /// Writes two layers, each with multiple mip maps.
 /// All mip maps have solid color for brevity.
 fn main() {
-    use exr::{math::RoundingMode, prelude::*};
+    use ai_exr::{math::RoundingMode, prelude::*};
     use smallvec::smallvec;
 
     let full_size = Vec2(512, 512);
     let size_rounding = RoundingMode::Up;
 
-    let mip_levels_sizes = exr::meta::mip_map_levels(size_rounding, full_size).collect::<Vec<_>>();
+    let mip_levels_sizes = ai_exr::meta::mip_map_levels(size_rounding, full_size).collect::<Vec<_>>();
 
     let red_mip_levels = mip_levels_sizes
         .iter()

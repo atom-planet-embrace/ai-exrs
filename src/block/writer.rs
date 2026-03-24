@@ -1,7 +1,7 @@
 //! Composable structures to handle writing an image.
 
-use std::{fmt::Debug, io::Seek, iter::Peekable, ops::Not};
-
+use crate::io::Seek;
+use core::{fmt::Debug, iter::Peekable, ops::Not};
 use smallvec::alloc::collections::BTreeMap;
 
 use crate::{
@@ -38,7 +38,7 @@ pub fn write_chunks_with<W: Write + Seek>(
 pub struct ChunkWriter<W> {
     header_count: usize,
     byte_writer: Tracking<W>,
-    chunk_indices_byte_location: std::ops::Range<usize>,
+    chunk_indices_byte_location: core::ops::Range<usize>,
     chunk_indices_increasing_y: OffsetTables,
     chunk_count: usize, // TODO compose?
 }
@@ -309,7 +309,7 @@ where
 pub struct SortedBlocksWriter<'w, W> {
     chunk_writer: &'w mut W,
     pending_chunks: BTreeMap<usize, (usize, Chunk)>,
-    unwritten_chunk_indices: Peekable<std::ops::Range<usize>>,
+    unwritten_chunk_indices: Peekable<core::ops::Range<usize>>,
     requires_sorting: bool, // using this instead of Option, because of borrowing
 }
 

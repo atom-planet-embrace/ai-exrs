@@ -1,10 +1,8 @@
 //! Composable structures to handle reading an image.
 
-use std::{
-    convert::TryFrom,
-    fmt::Debug,
-    io::{Read, Seek},
-};
+use alloc::vec::Vec;
+use core::{convert::TryFrom, fmt::Debug};
+use crate::io::{Read, Seek};
 
 use crate::{
     block::{
@@ -71,7 +69,7 @@ impl<R: Read + Seek> Reader<R> {
                     &offset_tables,
                     self.remaining_reader.byte_position(),
                 )?;
-                offset_tables.iter().map(std::vec::Vec::len).sum()
+                offset_tables.iter().map(alloc::vec::Vec::len).sum()
             } else {
                 MetaData::skip_offset_tables(&mut self.remaining_reader, &self.meta_data.headers)?
             }
@@ -191,7 +189,7 @@ fn validate_offset_tables(
 pub struct FilteredChunksReader<R> {
     meta_data: MetaData,
     expected_filtered_chunk_count: usize,
-    remaining_filtered_chunk_indices: std::vec::IntoIter<u64>,
+    remaining_filtered_chunk_indices: alloc::vec::IntoIter<u64>,
     remaining_bytes: PeekRead<Tracking<R>>,
 }
 
@@ -204,7 +202,7 @@ pub struct FilteredChunksReader<R> {
 #[derive(Debug)]
 pub struct AllChunksReader<R> {
     meta_data: MetaData,
-    remaining_chunks: std::ops::Range<usize>,
+    remaining_chunks: core::ops::Range<usize>,
     remaining_bytes: PeekRead<Tracking<R>>,
     pedantic: bool,
 }

@@ -2,52 +2,203 @@
 //! Uses the error handling for this crate.
 
 #![doc(hidden)]
-use std::{
-    convert::TryFrom,
-    fs::File,
-    io::{Seek, SeekFrom},
-    path::Path,
-};
+use alloc::vec::Vec;
+use core::convert::TryFrom;
 
 use ::half::f16;
-pub use ::std::io::{Read, Write};
+
+pub use no_std_io::io::{Read, Seek, SeekFrom, Write};
+
 use half::slice::HalfFloatSliceExt;
 use lebe::prelude::*;
 use smallvec::{Array, SmallVec};
 
-use crate::error::{Error, IoResult, Result, UnitResult};
+use crate::error::{Error, IoError, IoResult, Result, UnitResult};
+
+use no_std_io::io::{Cursor, ErrorKind as IoErrorKind};
+
+/// A buffered reader with a compile-time buffer size.
+#[derive(Debug)]
+pub struct BufReader<R: Read, const S: usize = 8192> {
+    inner: R,
+    buf: [u8; S],
+    /// bytes in `buf` that have been filled but not yet consumed
+    filled: usize,
+    /// read position within `buf`
+    consumed: usize,
+}
+
+impl<R: Read, const S: usize> BufReader<R, S> {
+    /// Wrap `inner` in a `BufReader`.
+    pub fn new(inner: R) -> Self {
+        Self {
+            inner,
+            buf: [0u8; S],
+            filled: 0,
+            consumed: 0,
+        }
+    }
+}
+
+impl<R: Read, const S: usize> Read for BufReader<R, S> {
+    fn read(&mut self, buf: &mut [u8]) -> IoResult<usize> {
+        if self.consumed >= self.filled {
+            if buf.len() >= S {
+                // bypass internal buffer for large reads
+                return self.inner.read(buf);
+            }
+            self.filled = self.inner.read(&mut self.buf)?;
+            self.consumed = 0;
+            if self.filled == 0 {
+                return Ok(0);
+            }
+        }
+        let available = &self.buf[self.consumed..self.filled];
+        let n = available.len().min(buf.len());
+        buf[..n].copy_from_slice(&available[..n]);
+        self.consumed += n;
+        Ok(n)
+    }
+}
+
+impl<R: Read + Seek, const S: usize> Seek for BufReader<R, S> {
+    fn seek(&mut self, pos: SeekFrom) -> IoResult<u64> {
+        // discard buffer on any seek
+        self.filled = 0;
+        self.consumed = 0;
+        self.inner.seek(pos)
+    }
+}
+
+/// A cursor over a `Vec<u8>` that implements `Write`.
+/// Needed because `no_std_io` does not provide `impl Write for Cursor<Vec<u8>>`.
+#[derive(Debug)]
+pub struct WriteCursor(Cursor<Vec<u8>>);
+
+impl WriteCursor {
+    /// Create a new `WriteCursor` wrapping the given `Vec<u8>`.
+    pub fn new(v: Vec<u8>) -> Self {
+        WriteCursor(Cursor::new(v))
+    }
+
+    /// Return the current byte position of the cursor.
+    pub fn position(&self) -> u64 {
+        self.0.position()
+    }
+
+    /// Set the cursor position.
+    pub fn set_position(&mut self, pos: u64) {
+        self.0.set_position(pos);
+    }
+
+    /// Consume the cursor and return the underlying `Vec<u8>`.
+    pub fn into_inner(self) -> Vec<u8> {
+        self.0.into_inner()
+    }
+}
+
+impl Write for WriteCursor {
+    fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
+        let pos = self.0.position() as usize;
+        let inner = self.0.get_mut();
+        let end = pos + buf.len();
+        if inner.len() < end {
+            inner.resize(end, 0);
+        }
+        inner[pos..end].copy_from_slice(buf);
+        self.0.set_position(end as u64);
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> IoResult<()> {
+        Ok(())
+    }
+}
+
+/// A buffered writer with a compile-time buffer size.
+/// Flushes the internal buffer before any seek, ensuring correct behaviour
+/// when the underlying writer requires seeking (e.g. EXR chunk-offset patching).
+#[derive(Debug)]
+pub struct BufWriter<W: Write + Seek, const S: usize = 8192> {
+    inner: W,
+    buf: [u8; S],
+    filled: usize,
+}
+
+impl<W: Write + Seek, const S: usize> BufWriter<W, S> {
+    /// Wrap `inner` in a `BufWriter`.
+    pub fn new(inner: W) -> Self {
+        Self {
+            inner,
+            buf: [0u8; S],
+            filled: 0,
+        }
+    }
+
+    fn flush_buf(&mut self) -> IoResult<()> {
+        if self.filled > 0 {
+            self.inner.write_all(&self.buf[..self.filled])?;
+            self.filled = 0;
+        }
+        Ok(())
+    }
+}
+
+impl<W: Write + Seek, const S: usize> Write for BufWriter<W, S> {
+    fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
+        if self.filled + buf.len() >= S {
+            self.flush_buf()?;
+            if buf.len() >= S {
+                return self.inner.write(buf);
+            }
+        }
+        self.buf[self.filled..self.filled + buf.len()].copy_from_slice(buf);
+        self.filled += buf.len();
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> IoResult<()> {
+        self.flush_buf()?;
+        self.inner.flush()
+    }
+}
+
+impl<W: Write + Seek, const S: usize> Seek for BufWriter<W, S> {
+    fn seek(&mut self, pos: SeekFrom) -> IoResult<u64> {
+        self.flush_buf()?;
+        self.inner.seek(pos)
+    }
+}
 
 /// Skip reading uninteresting bytes without allocating.
 #[inline]
 pub fn skip_bytes(read: &mut impl Read, count: usize) -> IoResult<()> {
-    let count = u64::try_from(count).unwrap();
-
-    let skipped = std::io::copy(&mut read.by_ref().take(count), &mut std::io::sink())?;
-
-    // the reader may have ended before we skipped the desired number of bytes
-    if skipped < count {
-        return Err(std::io::Error::new(
-            std::io::ErrorKind::UnexpectedEof,
-            "cannot skip more bytes than exist",
-        ));
+    let mut buf = [0u8; 64];
+    let mut remaining = count;
+    while remaining > 0 {
+        let to_read = remaining.min(buf.len());
+        let n = read.read(&mut buf[..to_read])?;
+        if n == 0 {
+            return Err(IoError::from(IoErrorKind::UnexpectedEof));
+        }
+        remaining -= n;
     }
-
-    debug_assert_eq!(skipped, count, "skip bytes bug");
     Ok(())
 }
 
 /// If an error occurs while writing, attempts to delete the partially written
 /// file. Creates a file just before the first write operation, not when this
 /// function is called.
+#[cfg(feature = "std")]
 #[inline]
 pub fn attempt_delete_file_on_write_error<'p>(
-    path: &'p Path,
+    path: &'p ::std::path::Path,
     write: impl FnOnce(LateFile<'p>) -> UnitResult,
 ) -> UnitResult {
     match write(LateFile::from(path)) {
         Err(error) => {
             // FIXME deletes existing file if creation of new file fails?
-            let _deleted = std::fs::remove_file(path); // ignore deletion errors
+            let _deleted = ::std::fs::remove_file(path); // ignore deletion errors
             Err(error)
         }
 
@@ -55,14 +206,16 @@ pub fn attempt_delete_file_on_write_error<'p>(
     }
 }
 
+#[cfg(feature = "std")]
 #[derive(Debug)]
 pub struct LateFile<'p> {
-    path: &'p Path,
-    file: Option<File>,
+    path: &'p ::std::path::Path,
+    file: Option<::std::fs::File>,
 }
 
-impl<'p> From<&'p Path> for LateFile<'p> {
-    fn from(path: &'p Path) -> Self {
+#[cfg(feature = "std")]
+impl<'p> From<&'p ::std::path::Path> for LateFile<'p> {
+    fn from(path: &'p ::std::path::Path) -> Self {
         Self {
             path,
             file: None,
@@ -70,21 +223,23 @@ impl<'p> From<&'p Path> for LateFile<'p> {
     }
 }
 
+#[cfg(feature = "std")]
 impl LateFile<'_> {
-    fn file(&mut self) -> std::io::Result<&mut File> {
+    fn file(&mut self) -> ::std::io::Result<&mut ::std::fs::File> {
         if self.file.is_none() {
-            self.file = Some(File::create(self.path)?);
+            self.file = Some(::std::fs::File::create(self.path)?);
         }
         Ok(self.file.as_mut().unwrap()) // will not be reached if creation fails
     }
 }
 
-impl std::io::Write for LateFile<'_> {
-    fn write(&mut self, buffer: &[u8]) -> std::io::Result<usize> {
+#[cfg(feature = "std")]
+impl ::std::io::Write for LateFile<'_> {
+    fn write(&mut self, buffer: &[u8]) -> ::std::io::Result<usize> {
         self.file()?.write(buffer)
     }
 
-    fn flush(&mut self) -> std::io::Result<()> {
+    fn flush(&mut self) -> ::std::io::Result<()> {
         if let Some(file) = &mut self.file {
             file.flush()
         } else {
@@ -93,8 +248,9 @@ impl std::io::Write for LateFile<'_> {
     }
 }
 
+#[cfg(feature = "std")]
 impl Seek for LateFile<'_> {
-    fn seek(&mut self, position: SeekFrom) -> std::io::Result<u64> {
+    fn seek(&mut self, position: SeekFrom) -> ::std::io::Result<u64> {
         self.file()?.seek(position)
     }
 }
@@ -170,7 +326,7 @@ impl<T: Read> Read for PeekRead<T> {
 impl<T: Read + Seek> PeekRead<Tracking<T>> {
     /// Seek this read to the specified byte position.
     /// Discards any previously peeked value.
-    pub fn skip_to(&mut self, position: usize) -> std::io::Result<()> {
+    pub fn skip_to(&mut self, position: usize) -> IoResult<()> {
         self.inner.seek_read_to(position)?;
         self.peeked = None;
         Ok(())
@@ -195,7 +351,7 @@ pub struct Tracking<T> {
 }
 
 impl<T: Read> Read for Tracking<T> {
-    fn read(&mut self, buffer: &mut [u8]) -> std::io::Result<usize> {
+    fn read(&mut self, buffer: &mut [u8]) -> IoResult<usize> {
         let count = self.inner.read(buffer)?;
         self.position += count;
         Ok(count)
@@ -203,13 +359,13 @@ impl<T: Read> Read for Tracking<T> {
 }
 
 impl<T: Write> Write for Tracking<T> {
-    fn write(&mut self, buffer: &[u8]) -> std::io::Result<usize> {
+    fn write(&mut self, buffer: &[u8]) -> IoResult<usize> {
         let count = self.inner.write(buffer)?;
         self.position += count;
         Ok(count)
     }
 
-    fn flush(&mut self) -> std::io::Result<()> {
+    fn flush(&mut self) -> IoResult<()> {
         self.inner.flush()
     }
 }
@@ -233,7 +389,7 @@ impl<T> Tracking<T> {
 impl<T: Read + Seek> Tracking<T> {
     /// Set the reader to the specified byte position.
     /// If it is only a couple of bytes, no seek system call is performed.
-    pub fn seek_read_to(&mut self, target_position: usize) -> std::io::Result<()> {
+    pub fn seek_read_to(&mut self, target_position: usize) -> IoResult<()> {
         let delta = target_position as i128 - self.position as i128; // FIXME  panicked at 'attempt to subtract with overflow'
         debug_assert!(delta.abs() < usize::MAX as i128);
 
@@ -254,15 +410,20 @@ impl<T: Read + Seek> Tracking<T> {
 impl<T: Write + Seek> Tracking<T> {
     /// Move the writing cursor to the specified target byte index.
     /// If seeking forward, this will write zeroes.
-    pub fn seek_write_to(&mut self, target_position: usize) -> std::io::Result<()> {
+    pub fn seek_write_to(&mut self, target_position: usize) -> IoResult<()> {
         if target_position < self.position {
             self.inner.seek(SeekFrom::Start(u64::try_from(target_position).unwrap()))?;
         } else if target_position > self.position {
-            std::io::copy(
-                &mut std::io::repeat(0)
-                    .take(u64::try_from(target_position - self.position).unwrap()),
-                self,
-            )?;
+            let zero_buf = [0u8; 64];
+            let mut remaining = target_position - self.position;
+            while remaining > 0 {
+                let to_write = remaining.min(zero_buf.len());
+                let n = self.write(&zero_buf[..to_write])?;
+                if n == 0 {
+                    break;
+                }
+                remaining -= n;
+            }
         }
 
         self.position = target_position;
@@ -274,7 +435,7 @@ impl<T: Write + Seek> Tracking<T> {
 /// writing for this type.
 pub trait Data: Sized + Default + Clone {
     /// Number of bytes this would consume in an exr file.
-    const BYTE_SIZE: usize = ::std::mem::size_of::<Self>();
+    const BYTE_SIZE: usize = ::core::mem::size_of::<Self>();
 
     /// Read a value of type `Self` from a little-endian source.
     fn read_le(read: &mut impl Read) -> Result<Self>;
@@ -550,7 +711,7 @@ impl Data for f16 {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "std"))]
 mod test {
     use std::io::Read;
 

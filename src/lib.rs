@@ -5,6 +5,7 @@
 //! Read __the [GUIDE.md](https://github.com/johannesvollmer/exrs/blob/master/GUIDE.md) for a API introduction__.
 //! Check out the [examples](https://github.com/johannesvollmer/exrs/tree/master/examples) for a first impression.
 
+#![no_std]
 #![warn(
     rust_2018_idioms,
     future_incompatible,
@@ -28,6 +29,11 @@
 )]
 #![forbid(unsafe_code)]
 #![warn(missing_docs)]
+
+#[macro_use]
+extern crate alloc;
+#[cfg(feature = "std")]
+extern crate std;
 
 pub mod io; // public to allow for custom attribute byte parsing
 
@@ -70,6 +76,7 @@ pub mod prelude {
 
     // error handling
     pub use crate::error::{Error, Result};
+    #[cfg(feature = "std")]
     pub use crate::image::{
         read::{
             read_all_data_from_file, read_all_flat_layers_from_file,

@@ -1,7 +1,7 @@
 //! How to read arbitrary but specific selection of arbitrary channels.
 //! This is not a zero-cost abstraction.
 
-use std::marker::PhantomData;
+use core::marker::PhantomData;
 
 use crate::{
     block::{chunk::TileCoordinates, samples::*, UncompressedBlock},

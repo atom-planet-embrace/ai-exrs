@@ -1,15 +1,17 @@
 
-use std::collections::HashMap;
+use hashbrown::HashMap;
 use crate::image::write::channels::{WritableChannels, ChannelsWriter};
 use crate::meta::attribute::{LevelMode, ChannelList, Text, TextSlice, ChannelInfo};
 use crate::meta::header::Header;
 use crate::image::read::layers::{ReadChannels, ChannelsReader};
 use crate::block::{BlockIndex, UncompressedBlock};
 use crate::block::lines::{collect_uncompressed_block_from_lines, LineIndex};
-use std::io::{Cursor, Read};
+use crate::io::Read;
 use crate::error::{Result, UnitResult};
 use crate::block::chunk::TileCoordinates;
 use crate::prelude::SmallVec;
+
+use no_std_io::io::Cursor;
 
 
 

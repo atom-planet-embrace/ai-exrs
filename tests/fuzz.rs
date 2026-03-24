@@ -1,4 +1,5 @@
 //! Fuzzy testing.
+#![cfg(feature = "std")]
 //! Tries to discover panics with random bytes.
 //! This test is expensive and therefore marked with `#[ignore]`. To run this
 //! test, use `cargo test -- --ignored`.
@@ -7,7 +8,7 @@ use std::panic::catch_unwind;
 
 use rand::{rngs::StdRng, Rng};
 
-extern crate exr;
+extern crate ai_exr;
 use std::{
     ffi::OsStr,
     fs::File,
@@ -15,7 +16,7 @@ use std::{
     path::PathBuf,
 };
 
-use exr::{
+use ai_exr::{
     image::{pixel_vec::PixelVec, read::read_first_rgba_layer_from_file},
     prelude::*,
 };

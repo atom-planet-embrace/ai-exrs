@@ -2,6 +2,7 @@
 //! Each layer can have any number of [`Attribute`]s, including custom
 //! attributes.
 
+use alloc::{string::{String, ToString}, vec::Vec};
 use smallvec::SmallVec;
 
 /// Contains one of all possible attributes.
@@ -100,7 +101,7 @@ pub enum AttributeValue {
         kind: Text,
 
         /// The value, stored in little-endian byte order, of the value.
-        /// Use the `exr::io::Data` trait to extract binary values from this
+        /// Use the `ai_exr::io::Data` trait to extract binary values from this
         /// vector.
         bytes: SmallVec<[u8; 16]>,
     },
@@ -410,7 +411,7 @@ pub type TextBytes = SmallVec<[u8; 24]>;
 /// A byte slice, interpreted as text
 pub type TextSlice = [u8];
 
-use std::{
+use core::{
     borrow::Borrow,
     convert::TryFrom,
     hash::{Hash, Hasher},
@@ -443,7 +444,7 @@ impl Text {
     /// Create a `Text` from an `str` reference.
     /// Panics if this string contains unsupported chars.
     pub fn new_or_panic(string: impl AsRef<str>) -> Self {
-        Self::new_or_none(string).expect("exr::Text contains unsupported characters")
+        Self::new_or_none(string).expect("ai_exr::Text contains unsupported characters")
     }
 
     /// Create a `Text` from a slice of bytes,
@@ -630,7 +631,7 @@ impl Text {
 
         while processed_bytes < total_byte_size {
             let text = Self::read_i32_sized_le(read, total_byte_size)?;
-            processed_bytes += ::std::mem::size_of::<i32>(); // size i32 of the text
+            processed_bytes += ::core::mem::size_of::<i32>(); // size i32 of the text
             processed_bytes += text.bytes.len();
             result.push(text);
         }
@@ -666,12 +667,12 @@ impl Text {
         self.bytes.iter().map(|&byte| byte as char)
     }
 
-    /// Compare this `exr::Text` with a plain `&str`.
+    /// Compare this `ai_exr::Text` with a plain `&str`.
     pub fn eq(&self, string: &str) -> bool {
         string.chars().eq(self.chars())
     }
 
-    /// Compare this `exr::Text` with a plain `&str` ignoring capitalization.
+    /// Compare this `ai_exr::Text` with a plain `&str` ignoring capitalization.
     pub fn eq_case_insensitive(&self, string: &str) -> bool {
         // this is technically not working for a "turkish i", but those cannot be
         // encoded in exr files anyways
@@ -730,22 +731,22 @@ impl<'s> From<&'s str> for Text {
 // fn try_from(value: &'s str) -> std::result::Result<Self, Self::Error> {
 // Text::new_or_none(value)
 // .ok_or_else(|| format!(
-// "exr::Text does not support all characters in the string `{}`",
+// "ai_exr::Text does not support all characters in the string `{}`",
 // value
 // ))
 // }
 // }
 
-impl ::std::fmt::Debug for Text {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        write!(f, "exr::Text(\"{self}\")")
+impl ::core::fmt::Debug for Text {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        write!(f, "ai_exr::Text(\"{self}\")")
     }
 }
 
 // automatically implements to_string for us
-impl ::std::fmt::Display for Text {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        use std::fmt::Write;
+impl ::core::fmt::Display for Text {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
+        use core::fmt::Write;
 
         for &byte in &self.bytes {
             f.write_char(byte as char)?;
@@ -1383,7 +1384,7 @@ impl TimeCode {
     }
 
     // in rust, group index starts at zero, not at one.
-    const fn user_data_bit_indices(group_index: usize) -> std::ops::Range<usize> {
+    const fn user_data_bit_indices(group_index: usize) -> core::ops::Range<usize> {
         let min_bit = 4 * group_index;
         min_bit..min_bit + 4 // +4, not +3, as `Range` is exclusive
     }
@@ -1663,8 +1664,8 @@ impl Preview {
     }
 }
 
-impl ::std::fmt::Debug for Preview {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+impl ::core::fmt::Debug for Preview {
+    fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         write!(f, "Preview ({}x{} px)", self.size.width(), self.size.height())
     }
 }
@@ -2196,7 +2197,7 @@ pub mod type_names {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "std"))]
 mod test {
     use ::std::io::Cursor;
     use rand::{random, thread_rng, Rng};
@@ -2398,7 +2399,7 @@ mod test {
     fn time_code_pack() {
         let mut rng = thread_rng();
 
-        let codes = std::iter::repeat_with(|| TimeCode {
+        let codes = core::iter::repeat_with(|| TimeCode {
             hours: rng.gen_range(0..24),
             minutes: rng.gen_range(0..60),
             seconds: rng.gen_range(0..60),
@@ -2407,7 +2408,7 @@ mod test {
             color_frame: random(),
             field_phase: random(),
             binary_group_flags: [random(), random(), random()],
-            binary_groups: std::iter::repeat_with(|| rng.gen_range(0..16))
+            binary_groups: core::iter::repeat_with(|| rng.gen_range(0..16))
                 .take(8)
                 .collect::<SmallVec<[u8; 8]>>()
                 .into_inner()

@@ -1,6 +1,7 @@
 //! Crop away unwanted pixels. Includes automatic detection of bounding
 //! rectangle. Currently does not support deep data and resolution levels.
 
+use alloc::vec::Vec;
 use crate::{
     block::BlockIndex,
     image::{
@@ -308,7 +309,7 @@ impl ApplyCroppedView for Layer<CroppedChannels<AnyChannels<FlatSamples>>> {
                             samples: Vec<T>,
                             old_width: usize,
                             new_height: usize,
-                            x_range: std::ops::Range<usize>,
+                            x_range: core::ops::Range<usize>,
                             y_start: usize,
                         ) -> Vec<T> {
                             let filtered_lines =

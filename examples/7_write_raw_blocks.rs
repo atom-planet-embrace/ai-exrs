@@ -5,10 +5,10 @@ extern crate rand;
 
 use std::{convert::TryInto, fs::File, io::BufWriter};
 
-use exr::block::{writer::ChunksWriter, UncompressedBlock};
+use ai_exr::block::{writer::ChunksWriter, UncompressedBlock};
 
 // exr imports
-extern crate exr;
+extern crate ai_exr;
 
 /// Generate a striped image on the fly and directly write that to a file
 /// without allocating the whole image at once. On my machine, this program
@@ -16,7 +16,7 @@ extern crate exr;
 /// though).
 fn main() {
     use attribute::*;
-    use exr::{math::*, prelude::*};
+    use ai_exr::{math::*, prelude::*};
 
     // pre-compute a list of random values
     let random_values: Vec<f32> = (0..64).map(|_| rand::random::<f32>()).collect();
@@ -25,7 +25,7 @@ fn main() {
     let size = (2048 * 8, 2048 * 8);
 
     // define meta data header that will be written
-    let header = exr::meta::header::Header::new(
+    let header = ai_exr::meta::header::Header::new(
         "test-image".try_into().unwrap(),
         size,
         smallvec![
@@ -39,7 +39,7 @@ fn main() {
     // define encoding that will be written
     let mut header = header.with_encoding(
         Compression::Uncompressed,
-        exr::meta::BlockDescription::Tiles(TileDescription {
+        ai_exr::meta::BlockDescription::Tiles(TileDescription {
             tile_size: Vec2(64, 64),
             level_mode: LevelMode::Singular,
             rounding_mode: RoundingMode::Down,
@@ -58,7 +58,7 @@ fn main() {
     let start_time = ::std::time::Instant::now();
 
     // finally write the image
-    exr::block::write(file, headers, true, |meta_data, chunk_writer| {
+    ai_exr::block::write(file, headers, true, |meta_data, chunk_writer| {
         let blocks = meta_data.collect_ordered_blocks(|block_index| {
             let channel_description = &meta_data.headers[block_index.layer].channels;
 

@@ -3,7 +3,7 @@
 
 //! Simple math utilities.
 
-use std::{
+use core::{
     convert::TryFrom,
     fmt::Debug,
     ops::{Add, Div, Mul, Sub},
@@ -36,7 +36,7 @@ impl<T> Vec2<T> {
 
     /// Try to convert all components of this vector to a new type,
     /// yielding either a vector of that new type, or an error.
-    pub fn try_from<S>(value: Vec2<S>) -> std::result::Result<Self, T::Error>
+    pub fn try_from<S>(value: Vec2<S>) -> core::result::Result<Self, T::Error>
     where
         T: TryFrom<S>,
     {
@@ -50,7 +50,7 @@ impl<T> Vec2<T> {
     #[inline]
     pub fn area(self) -> T
     where
-        T: std::ops::Mul<T, Output = T>,
+        T: core::ops::Mul<T, Output = T>,
     {
         self.0 * self.1
     }
@@ -120,7 +120,7 @@ impl Vec2<usize> {
     }
 }
 
-impl<T: std::ops::Add<T>> std::ops::Add<Self> for Vec2<T> {
+impl<T: core::ops::Add<T>> core::ops::Add<Self> for Vec2<T> {
     type Output = Vec2<T::Output>;
 
     fn add(self, other: Self) -> Self::Output {
@@ -128,7 +128,7 @@ impl<T: std::ops::Add<T>> std::ops::Add<Self> for Vec2<T> {
     }
 }
 
-impl<T: std::ops::Sub<T>> std::ops::Sub<Self> for Vec2<T> {
+impl<T: core::ops::Sub<T>> core::ops::Sub<Self> for Vec2<T> {
     type Output = Vec2<T::Output>;
 
     fn sub(self, other: Self) -> Self::Output {
@@ -136,7 +136,7 @@ impl<T: std::ops::Sub<T>> std::ops::Sub<Self> for Vec2<T> {
     }
 }
 
-impl<T: std::ops::Div<T>> std::ops::Div<Self> for Vec2<T> {
+impl<T: core::ops::Div<T>> core::ops::Div<Self> for Vec2<T> {
     type Output = Vec2<T::Output>;
 
     fn div(self, other: Self) -> Self::Output {
@@ -144,7 +144,7 @@ impl<T: std::ops::Div<T>> std::ops::Div<Self> for Vec2<T> {
     }
 }
 
-impl<T: std::ops::Mul<T>> std::ops::Mul<Self> for Vec2<T> {
+impl<T: core::ops::Mul<T>> core::ops::Mul<Self> for Vec2<T> {
     type Output = Vec2<T::Output>;
 
     fn mul(self, other: Self) -> Self::Output {
@@ -152,9 +152,9 @@ impl<T: std::ops::Mul<T>> std::ops::Mul<Self> for Vec2<T> {
     }
 }
 
-impl<T> std::ops::Neg for Vec2<T>
+impl<T> core::ops::Neg for Vec2<T>
 where
-    T: std::ops::Neg<Output = T>,
+    T: core::ops::Neg<Output = T>,
 {
     type Output = Self;
 
@@ -235,7 +235,7 @@ impl RoundingMode {
             + Sub<Output = T>
             + Div<Output = T>
             + From<u8>
-            + std::cmp::PartialOrd,
+            + core::cmp::PartialOrd,
     {
         assert!(
             dividend >= T::from(0) && divisor >= T::from(1),

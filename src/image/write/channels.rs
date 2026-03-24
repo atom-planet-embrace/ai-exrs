@@ -1,6 +1,7 @@
 //! How to read arbitrary channels and rgb channels.
 
-use std::marker::PhantomData;
+use alloc::vec::Vec;
+use core::marker::PhantomData;
 
 use crate::{
     block::{samples::*, *},
@@ -84,7 +85,7 @@ where
             self.list.iter().next().expect("zero channels in list").sample_data.infer_level_modes();
 
         debug_assert!(
-            std::iter::repeat(mode)
+            core::iter::repeat(mode)
                 .zip(self.list.iter().skip(1))
                 .all(|(first, other)| other.sample_data.infer_level_modes() == first),
             "level mode must be the same across all levels (do not nest resolution levels!)"

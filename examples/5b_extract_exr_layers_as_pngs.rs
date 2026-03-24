@@ -1,7 +1,7 @@
 extern crate image as png;
 use std::cmp::Ordering;
 
-extern crate exr;
+extern crate ai_exr;
 
 /// For each layer in the exr file,
 /// extract each channel as grayscale png,
@@ -9,7 +9,7 @@ extern crate exr;
 // FIXME throws "access denied" sometimes, simply trying again usually works.
 //
 pub fn main() {
-    use exr::prelude::*;
+    use ai_exr::prelude::*;
 
     let path = "layers.exr";
     let now = ::std::time::Instant::now();

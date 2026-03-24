@@ -1,11 +1,11 @@
 extern crate image as png;
 
 // exr imports
-extern crate exr;
+extern crate ai_exr;
 
 /// Converts one rgba exr with one layer to one png, or fail.
 fn main() {
-    use exr::{prelude as exrs, prelude::*};
+    use ai_exr::{prelude as exrs, prelude::*};
 
     // read from the exr file directly into a new `png::RgbaImage` image without
     // intermediate buffers

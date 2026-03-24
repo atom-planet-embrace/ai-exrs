@@ -1,11 +1,11 @@
 #[macro_use]
 extern crate bencher;
 
-extern crate exr;
+extern crate ai_exr;
 use std::io::Cursor;
 
 use bencher::Bencher;
-use exr::prelude::*;
+use ai_exr::prelude::*;
 
 fn write_parallel_any_channels_to_buffered(bench: &mut Bencher) {
     let path = "tests/images/valid/custom/crowskull/crow_rle.exr";

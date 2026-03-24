@@ -1,11 +1,11 @@
 // exr imports
-extern crate exr;
+extern crate ai_exr;
 
 /// Write an rgba exr file, generating the pixel values on the fly.
 /// This streams the generated pixel directly to the file,
 /// never allocating the actual total pixel memory of the image.
 fn main() {
-    use exr::{meta::attribute::*, prelude::*};
+    use ai_exr::{meta::attribute::*, prelude::*};
 
     // this function can generate a color for any pixel
     let generate_pixels = |position: Vec2<usize>| {
