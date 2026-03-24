@@ -5,6 +5,8 @@
 [![downloads](https://img.shields.io/crates/d/exr)](https://crates.io/crates/exr)
 [![Lines of Code](https://tokei.rs/b1/github/johannesvollmer/exrs?category=code)](https://tokei.rs)
 
+This is a fork of the [exr](https://crates.io/crates/exr) crate.
+
 # EXRS
 
 This library is a 100% Rust and 100% safe code library for
