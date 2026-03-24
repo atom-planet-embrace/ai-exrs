@@ -11,6 +11,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 ai-exr = { path = "..", default-features = false }
+no_std_io = { version = "0.6", default-features = false, features = ["alloc"] }
 smallvec = "1.7"
 half = "2.1"
 

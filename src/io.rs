@@ -95,6 +95,12 @@ impl WriteCursor {
     }
 }
 
+impl Seek for WriteCursor {
+    fn seek(&mut self, pos: SeekFrom) -> IoResult<u64> {
+        self.0.seek(pos)
+    }
+}
+
 impl Write for WriteCursor {
     fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
         let pos = self.0.position() as usize;

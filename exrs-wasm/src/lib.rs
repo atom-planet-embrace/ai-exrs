@@ -1,7 +1,8 @@
 use wasm_bindgen::prelude::*;
 use ai_exr::prelude::*;
 use ai_exr::image::AnyChannels;
-use std::io::Cursor;
+use no_std_io::io::Cursor;
+use ai_exr::io::WriteCursor;
 use smallvec::smallvec;
 use ai_exr::image::pixel_vec::PixelVec;
 
@@ -199,13 +200,10 @@ impl ExrEncoder {
         };
 
         // Write to in-memory buffer
-        let mut buffer = Vec::new();
-        {
-            let cursor = Cursor::new(&mut buffer);
-            image.write().non_parallel().to_buffered(cursor)?;
-        }
+        let mut cursor = WriteCursor::new(Vec::new());
+        image.write().non_parallel().to_buffered(&mut cursor)?;
 
-        Ok(buffer)
+        Ok(cursor.into_inner())
     }
 
     fn make_channel(
