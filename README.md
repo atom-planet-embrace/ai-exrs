@@ -5,7 +5,7 @@
 [![downloads](https://img.shields.io/crates/d/exr)](https://crates.io/crates/exr)
 [![Lines of Code](https://tokei.rs/b1/github/johannesvollmer/exrs?category=code)](https://tokei.rs)
 
-This is a fork of the [exr](https://crates.io/crates/exr) crate.
+This is a fork of the [exr](https://crates.io/crates/exr) crate. The git repository is located at https://github.com/johannesvollmer/exrs.
 
 # EXRS
 
